@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Focus Hub</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#090a13;--panel:#151522e8;--panel2:#ffffff0d;--border:#ffffff1c;
+  --text:#fff;--muted:#aaa5b5;--purple:#9270dc;--purple2:#b496ff;
+}
+html,body{min-height:100%}
+body{
+  margin:0;color:var(--text);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 50% 20%,#35245155,transparent 38%),
+    radial-gradient(circle at 85% 70%,#20205244,transparent 35%),
+    linear-gradient(135deg,#171525,#080912 70%);
+  background-size:cover;background-position:center;background-attachment:fixed;
+}
+body.has-bg{background-color:#080912;background-image:linear-gradient(#0007,#0007),var(--custom-bg)}
+button,input,select{font:inherit}button{color:inherit}
+header{
+  min-height:82px;padding:18px 34px;display:flex;align-items:center;
+  justify-content:space-between;border-bottom:1px solid #ffffff0b;
+  backdrop-filter:blur(14px);background:#08091255
+}
+.brand{font-size:20px;font-weight:800}.brand span{color:var(--purple2)}
+.header-actions{display:flex;gap:9px}
+.icon-btn{
+  width:42px;height:42px;border:1px solid var(--border);border-radius:12px;
+  background:#ffffff0c;cursor:pointer
+}
+main{width:min(1250px,calc(100% - 40px));margin:auto;padding:28px 0 70px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:22px}
+.toolbar h1{font-size:25px;margin:0}.toolbar p{color:var(--muted);font-size:13px;margin:5px 0 0}
+.primary{
+  border:1px solid #c5b1ff;border-radius:14px;padding:12px 17px;
+  background:var(--purple);font-weight:800;cursor:pointer;box-shadow:0 0 25px #9874df44
+}
+.secondary{border:1px solid #ffffff1d;background:#ffffff0b;border-radius:11px;padding:11px 16px;cursor:pointer}
+.danger{border:1px solid #ff7c7c55;background:#ff4d4d12;color:#ffaaa7}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin:28px 0 13px}
+.section-title h2{font-size:14px;text-transform:uppercase;letter-spacing:1.3px;margin:0;color:#cbc5d4}
+.section-title span{font-size:12px;color:#888294}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.card{
+  position:relative;overflow:hidden;border:1px solid var(--border);border-radius:20px;
+  padding:19px;background:linear-gradient(145deg,#191827e8,#0f101bdc);box-shadow:0 15px 40px #0004
+}
+.card-top{display:flex;justify-content:space-between;gap:10px}.card-title{font-size:17px;font-weight:750;margin:0}
+.card-description{font-size:12px;color:var(--muted);margin:5px 0 0;min-height:17px}
+.menu-btn{border:0;background:transparent;color:#9d97a8;font-size:20px;cursor:pointer}
+.card-progress{height:5px;background:#ffffff12;border-radius:10px;margin:17px 0 18px;overflow:hidden}
+.card-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--purple),#c4afff);border-radius:10px}
+.units{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.unit{text-align:center;background:#ffffff08;border:1px solid #ffffff0d;border-radius:12px;padding:11px 4px}
+.value{display:block;font-size:25px;font-weight:750;font-variant-numeric:tabular-nums}
+.unit small{display:block;color:#918b9e;font-size:9px;text-transform:uppercase;letter-spacing:.8px;margin-top:3px}
+.dates{display:flex;justify-content:space-between;margin-top:13px;color:#777181;font-size:10px}
+.card-footer{display:flex;justify-content:flex-end;gap:7px;margin-top:12px}
+.small-btn{border:1px solid #ffffff16;background:#ffffff08;border-radius:9px;padding:7px 10px;font-size:11px;cursor:pointer}
+
+.streak-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.streak-card{
+  border:1px solid var(--border);border-radius:20px;padding:18px;
+  background:linear-gradient(145deg,#1b1829e8,#10111cdc);box-shadow:0 15px 40px #0004
+}
+.streak-head{display:flex;justify-content:space-between;gap:10px}.streak-title{margin:0;font-size:16px}
+.streak-legend{margin:5px 0 17px;color:var(--muted);font-size:12px}
+.streak-number{font-size:42px;font-weight:850;line-height:1;font-variant-numeric:tabular-nums}
+.streak-number small{font-size:13px;color:#9e98a8;font-weight:600}
+.streak-meta{font-size:10px;color:#777181;margin-top:8px}
+.streak-actions{display:flex;gap:7px;margin-top:15px}.streak-actions button{flex:1}
+.today{border-color:#c5b1ff;background:#9270dc22}
+
+.sites-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.category-filter{
+  border:1px solid var(--border);background:#ffffff09;color:#ddd7e5;
+  border-radius:10px;padding:8px 10px;outline:none
+}
+.sites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.site{
+  position:relative;min-height:130px;border:1px solid var(--border);border-radius:17px;
+  background:#ffffff09;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:9px;cursor:pointer;text-decoration:none;color:#fff;transition:.15s
+}
+.site:hover{background:#ffffff13;transform:translateY(-2px)}
+.site-icon{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;background:#292a38;font-size:19px;font-weight:800}
+.site-name{font-size:12px;color:#c3bdca;max-width:125px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.site-category{font-size:9px;color:#817a8d;text-transform:uppercase;letter-spacing:.6px}
+.site-actions{position:absolute;top:7px;right:7px;display:flex;gap:3px;opacity:0;transition:.15s}
+.site:hover .site-actions{opacity:1}.site-actions button{border:0;background:#0008;border-radius:7px;padding:4px 6px;cursor:pointer}
+.add-site{border:1px dashed #ffffff2c;background:#ffffff06}
+.empty{border:1px dashed #ffffff20;border-radius:18px;padding:30px;text-align:center;color:#8d8797}
+.full-empty{grid-column:1/-1}
+
+.modal-bg{
+  display:none;position:fixed;inset:0;background:#0009;backdrop-filter:blur(8px);
+  z-index:10;align-items:center;justify-content:center;padding:20px
+}
+.modal{width:min(520px,100%);max-height:90vh;overflow:auto;background:#151522;border:1px solid #ffffff22;border-radius:22px;padding:23px;box-shadow:0 30px 80px #0009}
+.modal h2{margin:0 0 18px;font-size:19px}.field{margin:13px 0}
+.field label{display:block;color:#aaa3b4;font-size:11px;text-transform:uppercase;letter-spacing:.7px;margin:0 0 6px}
+.field input,.field select{
+  width:100%;padding:12px;border-radius:11px;border:1px solid #ffffff1f;
+  background:#0d0e18;color:#fff;outline:none
+}
+.field input:focus,.field select:focus{border-color:var(--purple)}
+.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
+.file-note{font-size:10px;color:#888294;margin-top:6px;line-height:1.5}
+.category-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}.category-pill{
+  display:flex;align-items:center;gap:6px;background:#ffffff09;border:1px solid #ffffff16;
+  border-radius:20px;padding:6px 9px;font-size:11px
+}.category-pill button{border:0;background:transparent;cursor:pointer;color:#aaa}
+
+.audio-status{font-size:11px;color:#aaa3b4;margin-top:8px}
+.music-list{display:flex;flex-direction:column;gap:7px;max-height:180px;overflow:auto;margin-top:10px}
+.music-row{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #ffffff12;border-radius:10px}
+.music-row span{flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.music-row button{border:0;background:transparent;cursor:pointer}
+
+@media(max-width:650px){
+  header{padding:16px;height:72px}.header-actions .icon-btn:nth-child(-n+2){display:none}
+  main{width:min(100% - 24px,1250px);padding-top:20px}.toolbar{align-items:flex-start}
+  .toolbar p{max-width:220px}.primary{padding:10px 12px;font-size:12px}
+  .grid{grid-template-columns:1fr}.sites-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Focus <span>Hub</span></div>
+  <div class="header-actions">
+    <button class="icon-btn" onclick="toggleTheme()" title="Alternar brilho">◐</button>
+    <button class="icon-btn" onclick="openSettings()" title="Configurações">⚙</button>
+  </div>
+</header>
+
+<main>
+  <div class="toolbar">
+    <div>
+      <h1>Meu painel</h1>
+      <p>Um lugar para prazos, hábitos e atalhos importantes.</p>
+    </div>
+    <button class="primary" onclick="openCountdownModal()">＋ Nova contagem</button>
+  </div>
+
+  <div class="section-title">
+    <h2>🔥 Dias consecutivos</h2>
+    <button class="secondary" onclick="openStreakModal()">＋ Novo hábito</button>
+  </div>
+  <div id="streaks" class="streak-grid"></div>
+
+  <div class="section-title">
+    <h2>⏳ Contagens regressivas</h2>
+    <span id="countdownCount"></span>
+  </div>
+  <div id="countdowns" class="grid"></div>
+
+  <div class="section-title">
+    <h2>🔗 Sites</h2>
+    <div class="sites-toolbar">
+      <select id="categoryFilter" class="category-filter" onchange="renderSites()"></select>
+      <button class="secondary" onclick="openCategoryModal()">Categorias</button>
+      <button class="secondary" onclick="openSiteModal()">＋ Site</button>
+    </div>
+  </div>
+  <div id="sites" class="sites-grid"></div>
+</main>
+
+<!-- Countdown -->
+<div class="modal-bg" id="countdownModal"><div class="modal">
+  <h2 id="countdownModalTitle">Nova contagem regressiva</h2>
+  <input id="countdownId" type="hidden">
+  <div class="field"><label>Título</label><input id="titleInput" placeholder="Ex.: Final do bimestre"></div>
+  <div class="field"><label>Descrição / legenda</label><input id="descriptionInput" placeholder="Ex.: Entregar todos os trabalhos"></div>
+  <div class="field"><label>Data de início</label><input id="startInput" type="date"></div>
+  <div class="field"><label>Data de fim</label><input id="endInput" type="date"></div>
+  <div class="modal-actions">
+    <button class="secondary" onclick="closeModal('countdownModal')">Cancelar</button>
+    <button class="primary" onclick="saveCountdown()">Salvar</button>
+  </div>
+</div></div>
+
+<!-- Streak -->
+<div class="modal-bg" id="streakModal"><div class="modal">
+  <h2 id="streakModalTitle">Novo hábito</h2>
+  <input id="streakId" type="hidden">
+  <div class="field"><label>Título</label><input id="streakTitle" placeholder="Ex.: Dias indo pra academia"></div>
+  <div class="field"><label>Legenda</label><input id="streakLegend" placeholder="Ex.: Treinar pelo menos 1 vez por dia"></div>
+  <div class="modal-actions">
+    <button class="secondary" onclick="closeModal('streakModal')">Cancelar</button>
+    <button class="primary" onclick="saveStreak()">Salvar</button>
+  </div>
+</div></div>
+
+<!-- Site -->
+<div class="modal-bg" id="siteModal"><div class="modal">
+  <h2 id="siteModalTitle">Novo site</h2>
+  <input id="siteId" type="hidden">
+  <div class="field"><label>Nome</label><input id="siteName" placeholder="Ex.: GitHub"></div>
+  <div class="field"><label>Endereço do site</label><input id="siteUrl" placeholder="https://github.com"></div>
+  <div class="field"><label>Categoria</label><select id="siteCategory"></select></div>
+  <div class="modal-actions">
+    <button class="secondary" onclick="closeModal('siteModal')">Cancelar</button>
+    <button class="primary" onclick="saveSite()">Salvar</button>
+  </div>
+</div></div>
+
+<!-- Categorias -->
+<div class="modal-bg" id="categoryModal"><div class="modal">
+  <h2>Gerenciar categorias</h2>
+  <div class="field">
+    <label>Nova categoria</label>
+    <div style="display:flex;gap:7px">
+      <input id="newCategory" placeholder="Ex.: Estudos">
+      <button class="primary" onclick="addCategory()">Adicionar</button>
+    </div>
+  </div>
+  <div id="categoryList" class="category-list"></div>
+  <div class="modal-actions"><button class="secondary" onclick="closeModal('categoryModal')">Fechar</button></div>
+</div></div>
+
+<!-- Configurações -->
+<div class="modal-bg" id="settingsModal"><div class="modal">
+  <h2>⚙ Configurações</h2>
+  <div class="field">
+    <label>Background</label>
+    <input id="backgroundFile" type="file" accept="image/*" onchange="setBackground(event)">
+    <div class="file-note">A imagem é armazenada localmente no navegador.</div>
+  </div>
+  <div class="field">
+    <label>Músicas de abertura</label>
+    <input id="musicFiles" type="file" accept="audio/*" multiple onchange="addMusic(event)">
+    <div class="file-note">Adicione uma ou várias músicas. Uma será escolhida aleatoriamente a cada abertura.</div>
+    <div id="audioStatus" class="audio-status"></div>
+    <div id="musicList" class="music-list"></div>
+  </div>
+  <div class="modal-actions">
+    <button class="secondary danger" onclick="clearBackground()">Remover background</button>
+    <button class="secondary" onclick="closeModal('settingsModal')">Fechar</button>
+  </div>
+</div></div>
+
+<audio id="openingAudio" preload="auto"></audio>
+
+<script>
+const countdownsEl=document.getElementById('countdowns');
+const streaksEl=document.getElementById('streaks');
+const sitesEl=document.getElementById('sites');
+
+let countdowns=load('countdowns',[]);
+let sites=load('countdownSites',[]);
+let streaks=load('focusStreaks',[]);
+let categories=load('siteCategories',['Estudos','Trabalho','Entretenimento','Ferramentas']);
+let music=load('focusMusic',[]);
+let settings=load('focusSettings',{brightness:false,bg:null});
+
+function load(k,fallback){try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(fallback))}catch{return fallback}}
+function saveAll(){
+  localStorage.setItem('countdowns',JSON.stringify(countdowns));
+  localStorage.setItem('countdownSites',JSON.stringify(sites));
+  localStorage.setItem('focusStreaks',JSON.stringify(streaks));
+  localStorage.setItem('siteCategories',JSON.stringify(categories));
+  localStorage.setItem('focusMusic',JSON.stringify(music));
+  localStorage.setItem('focusSettings',JSON.stringify(settings));
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function localDateString(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function parseDate(v){if(!v)return null;const[y,m,d]=v.split('-').map(Number);return new Date(y,m-1,d,0,0,0)}
+function formatDate(v){const[y,m,d]=v.split('-');return `${d}/${m}/${y}`}
+function closeModal(id){document.getElementById(id).style.display='none'}
+function openModal(id){document.getElementById(id).style.display='flex'}
+
+function openCountdownModal(id=null){
+  const now=new Date(),end=new Date(now);end.setDate(end.getDate()+7);
+  const c=id?countdowns.find(x=>x.id==id):null;
+  document.getElementById('countdownModalTitle').textContent=c?'Editar contagem':'Nova contagem regressiva';
+  countdownId.value=c?.id||'';
+  titleInput.value=c?.title||'';descriptionInput.value=c?.description||'';
+  startInput.value=c?.start||localDateString(now);endInput.value=c?.end||localDateString(end);
+  openModal('countdownModal');
+}
+function saveCountdown(){
+  const title=titleInput.value.trim()||'Nova contagem',description=descriptionInput.value.trim();
+  const start=startInput.value,end=endInput.value;
+  if(!start||!end||parseDate(end)<=parseDate(start)){alert('Escolha uma data final depois da data inicial.');return}
+  const data={title,description,start,end};
+  if(countdownId.value) Object.assign(countdowns.find(x=>x.id==countdownId.value),data);
+  else countdowns.push({id:Date.now(),...data});
+  saveAll();render();closeModal('countdownModal');
+}
+function removeCountdown(id){
+  if(confirm('Excluir esta contagem?')){countdowns=countdowns.filter(c=>c.id!=id);saveAll();render()}
+}
+
+function streakCurrent(s){
+  const today=localDateString(new Date());
+  const last=s.lastCheck;
+  if(!last)return 0;
+  const diff=Math.round((parseDate(today)-parseDate(last))/86400000);
+  if(diff===0)return s.current||0;
+  if(diff===1)return s.current||0;
+  return 0;
+}
+function checkStreak(id){
+  const s=streaks.find(x=>x.id==id);if(!s)return;
+  const today=localDateString(new Date());
+  if(s.lastCheck===today)return;
+  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+  const yesterdayStr=localDateString(yesterday);
+  s.current=(s.lastCheck===yesterdayStr?(s.current||0)+1:1);
+  s.best=Math.max(s.best||0,s.current);s.lastCheck=today;
+  saveAll();renderStreaks();
+}
+function openStreakModal(id=null){
+  const s=id?streaks.find(x=>x.id==id):null;
+  streakModalTitle.textContent=s?'Editar hábito':'Novo hábito';
+  streakId.value=s?.id||'';streakTitle.value=s?.title||'';streakLegend.value=s?.legend||'';
+  openModal('streakModal');
+}
+function saveStreak(){
+  const title=streakTitle.value.trim()||'Novo hábito',legend=streakLegend.value.trim();
+  if(streakId.value)Object.assign(streaks.find(x=>x.id==streakId.value),{title,legend});
+  else streaks.push({id:Date.now(),title,legend,current:0,best:0,lastCheck:null});
+  saveAll();renderStreaks();closeModal('streakModal');
+}
+function removeStreak(id){
+  if(confirm('Excluir este hábito e seu histórico?')){streaks=streaks.filter(s=>s.id!=id);saveAll();renderStreaks()}
+}
+function renderStreaks(){
+  if(!streaks.length){
+    streaksEl.innerHTML='<div class="empty full-empty">Nenhum hábito cadastrado.<br>Crie um para começar sua sequência 🔥</div>';return;
+  }
+  streaksEl.innerHTML=streaks.map(s=>{
+    const current=streakCurrent(s),today=s.lastCheck===localDateString(new Date());
+    return `<article class="streak-card">
+      <div class="streak-head"><div><h3 class="streak-title">${esc(s.title)}</h3><p class="streak-legend">${esc(s.legend||'Sem legenda')}</p></div>
+      <button class="menu-btn" onclick="openStreakModal(${s.id})">✎</button></div>
+      <div class="streak-number">${current}<small> dias</small></div>
+      <div class="streak-meta">Recorde: ${s.best||0} dias ${s.lastCheck?`• último registro: ${formatDate(s.lastCheck)}`:''}</div>
+      <div class="streak-actions">
+        <button class="small-btn ${today?'today':''}" onclick="checkStreak(${s.id})">${today?'✓ Feito hoje':'🔥 Registrar hoje'}</button>
+        <button class="small-btn" onclick="removeStreak(${s.id})">Excluir</button>
+      </div>
+    </article>`
+  }).join('');
+}
+
+function populateCategories(){
+  categoryFilter.innerHTML='<option value="*">Todas as categorias</option>'+categories.map(c=>`<option>${esc(c)}</option>`).join('');
+  siteCategory.innerHTML=categories.map(c=>`<option>${esc(c)}</option>`).join('');
+}
+function openSiteModal(id=null){
+  populateCategories();
+  const s=id?sites.find(x=>x.id==id):null;
+  siteModalTitle.textContent=s?'Editar site':'Novo site';
+  siteId.value=s?.id||'';siteName.value=s?.name||'';siteUrl.value=s?.url||'';
+  siteCategory.value=s?.category||categories[0]||'';
+  openModal('siteModal');
+}
+function saveSite(){
+  let name=siteName.value.trim(),url=siteUrl.value.trim(),category=siteCategory.value;
+  if(!name||!url){alert('Preencha o nome e o endereço.');return}
+  if(!/^https?:\/\//i.test(url))url='https://'+url;
+  try{new URL(url)}catch{alert('Endereço inválido.');return}
+  const data={name,url,category};
+  if(siteId.value)Object.assign(sites.find(s=>s.id==siteId.value),data);
+  else sites.push({id:Date.now(),...data});
+  saveAll();renderSites();closeModal('siteModal');
+}
+function removeSite(id){
+  if(confirm('Excluir este site?')){sites=sites.filter(s=>s.id!=id);saveAll();renderSites()}
+}
+function siteIcon(name){
+  const n=name.toLowerCase();
+  if(n.includes('github'))return '◉';if(n.includes('youtube'))return '▶';if(n.includes('google'))return 'G';
+  if(n.includes('chat')||n.includes('gpt'))return '✦';if(n.includes('discord'))return '◈';
+  return name.charAt(0).toUpperCase();
+}
+function renderSites(){
+  const filter=categoryFilter.value||'*';
+  const list=filter==='*'?sites:sites.filter(s=>s.category===filter);
+  sitesEl.innerHTML=list.map(s=>`
+    <div class="site">
+      <a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;align-items:center;gap:9px;text-decoration:none;color:inherit">
+        <div class="site-icon">${esc(siteIcon(s.name))}</div>
+        <div class="site-name">${esc(s.name)}</div>
+        <div class="site-category">${esc(s.category||'Sem categoria')}</div>
+      </a>
+      <div class="site-actions"><button onclick="openSiteModal(${s.id})">✎</button><button onclick="removeSite(${s.id})">×</button></div>
+    </div>`).join('')+
+    `<button class="site add-site" onclick="openSiteModal()"><div class="site-icon">＋</div><div class="site-name">Adicionar site</div><div class="site-category">Novo atalho</div></button>`;
+}
+function openCategoryModal(){renderCategoryList();openModal('categoryModal')}
+function renderCategoryList(){
+  categoryList.innerHTML=categories.map(c=>`<div class="category-pill">${esc(c)}<button onclick="removeCategory('${esc(c).replace(/'/g,"\\'")}')">×</button></div>`).join('');
+}
+function addCategory(){
+  const c=newCategory.value.trim();if(!c)return;
+  if(categories.some(x=>x.toLowerCase()===c.toLowerCase()))return alert('Essa categoria já existe.');
+  categories.push(c);newCategory.value='';saveAll();populateCategories();renderCategoryList();renderSites();
+}
+function removeCategory(c){
+  if(categories.length<=1)return alert('Mantenha pelo menos uma categoria.');
+  if(sites.some(s=>s.category===c))return alert('Existem sites nesta categoria. Mova ou edite esses sites antes de excluir.');
+  categories=categories.filter(x=>x!==c);saveAll();populateCategories();renderCategoryList();renderSites();
+}
+
+function update(){
+  document.querySelectorAll('.countdown-card').forEach(card=>{
+    const c=countdowns.find(x=>x.id==card.dataset.id);if(!c)return;
+    const start=parseDate(c.start),end=parseDate(c.end),now=new Date(),remain=end-now,total=end-start;
+    const elapsed=Math.max(0,Math.min(total,now-start));
+    card.querySelector('.card-progress i').style.width=(total?elapsed/total*100:0)+'%';
+    if(remain<=0){['days','hours','minutes','seconds'].forEach(x=>card.querySelector('.'+x).textContent='00');card.querySelector('.card-description').textContent='🎉 Prazo finalizado!';return}
+    const sec=Math.floor(remain/1000),days=Math.floor(sec/86400),hours=Math.floor(sec%86400/3600),minutes=Math.floor(sec%3600/60),seconds=sec%60;
+    card.querySelector('.days').textContent=String(days).padStart(2,'0');card.querySelector('.hours').textContent=String(hours).padStart(2,'0');
+    card.querySelector('.minutes').textContent=String(minutes).padStart(2,'0');card.querySelector('.seconds').textContent=String(seconds).padStart(2,'0');
+  });
+}
+function renderCountdowns(){
+  countdownCount.textContent=`${countdowns.length} ${countdowns.length===1?'contagem':'contagens'}`;
+  if(!countdowns.length){countdownsEl.innerHTML='<div class="empty full-empty">Nenhuma contagem criada ainda.<br>Use <b>＋ Nova contagem</b> para começar.</div>';return}
+  countdownsEl.innerHTML=countdowns.map(c=>`
+    <article class="card countdown-card" data-id="${c.id}">
+      <div class="card-top"><div><h3 class="card-title">${esc(c.title)}</h3><p class="card-description">${esc(c.description||'Sem descrição')}</p></div>
+      <button class="menu-btn" onclick="openCountdownModal(${c.id})">✎</button></div>
+      <div class="card-progress"><i></i></div>
+      <div class="units">
+        <div class="unit"><span class="value days">00</span><small>Dias</small></div>
+        <div class="unit"><span class="value hours">00</span><small>Horas</small></div>
+        <div class="unit"><span class="value minutes">00</span><small>Minutos</small></div>
+        <div class="unit"><span class="value seconds">00</span><small>Segundos</small></div>
+      </div>
+      <div class="dates"><span>Início: ${formatDate(c.start)}</span><span>Fim: ${formatDate(c.end)}</span></div>
+      <div class="card-footer"><button class="small-btn" onclick="removeCountdown(${c.id})">Excluir</button></div>
+    </article>`).join('');
+}
+function render(){renderCountdowns();renderStreaks();populateCategories();renderSites();update()}
+
+function openSettings(){
+  backgroundFile.value='';musicFiles.value='';renderMusicList();updateAudioStatus();openModal('settingsModal');
+}
+function setBackground(e){
+  const file=e.target.files[0];if(!file)return;
+  if(file.size>6*1024*1024)return alert('Use uma imagem de até 6 MB.');
+  const reader=new FileReader();reader.onload=()=>{settings.bg=reader.result;saveAll();applyBackground()};reader.readAsDataURL(file);
+}
+function applyBackground(){
+  if(settings.bg){document.body.classList.add('has-bg');document.body.style.setProperty('--custom-bg',`url("${settings.bg}")`)}
+  else{document.body.classList.remove('has-bg');document.body.style.removeProperty('--custom-bg')}
+}
+function clearBackground(){settings.bg=null;saveAll();applyBackground()}
+function addMusic(e){
+  const files=[...e.target.files];if(!files.length)return;
+  let pending=files.length;
+  files.forEach(file=>{
+    if(file.size>8*1024*1024){pending--;return}
+    const reader=new FileReader();
+    reader.onload=()=>{music.push({id:Date.now()+Math.random(),name:file.name,data:reader.result});pending--;if(pending===0){saveAll();renderMusicList();updateAudioStatus()}};
+    reader.readAsDataURL(file);
+  });
+}
+function removeMusic(id){music=music.filter(m=>m.id!=id);saveAll();renderMusicList();updateAudioStatus()}
+function renderMusicList(){
+  musicList.innerHTML=music.length?music.map(m=>`<div class="music-row"><span>🎵 ${esc(m.name)}</span><button onclick="removeMusic(${m.id})">×</button></div>`).join(''):'<div class="file-note">Nenhuma música cadastrada.</div>';
+}
+function updateAudioStatus(){audioStatus.textContent=music.length?`${music.length} música(s) cadastrada(s).`:'A música será desativada até você adicionar uma faixa.'}
+function playRandomMusic(){
+  if(!music.length)return;
+  const item=music[Math.floor(Math.random()*music.length)];
+  const audio=document.getElementById('openingAudio');audio.src=item.data;audio.volume=.35;
+  audio.play().catch(()=>{audioStatus.textContent='O Chrome bloqueou a reprodução automática. Clique na página para iniciar a música.'});
+}
+function toggleTheme(){
+  settings.brightness=!settings.brightness;
+  document.body.style.filter=settings.brightness?'brightness(1.18)':'';
+  saveAll();
+}
+function restoreSettings(){
+  document.body.style.filter=settings.brightness?'brightness(1.18)':'';
+  applyBackground();
+}
+
+document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.style.display='none'}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-bg').forEach(m=>m.style.display='none')});
+
+restoreSettings();
+render();
+playRandomMusic();
+
+/* O Chrome pode bloquear autoplay com áudio. Um clique na página tenta iniciar
+   novamente a faixa escolhida, sem interromper o usuário. */
+document.addEventListener('pointerdown',()=>{
+  const audio=document.getElementById('openingAudio');
+  if(audio.src && audio.paused)audio.play().catch(()=>{});
+},{once:true});
+
+setInterval(update,1000);
+</script>
+</body>
+</html>
